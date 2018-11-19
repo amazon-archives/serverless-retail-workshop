@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Basket{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      &nbsp;
+    </div>
+    <div class="row justify-content-md-center">
+      <div class="col">
+        <div class="row">
+          <table class="table table-striped">
+            <thead>
+            <tr>
+              <th scope="col">Product</th>
+              <th scope="col">Quantity</th>
+              <th scope="col">Price</th>
+              <th scope="col">&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for basket_item in basket.items_with_quantity %}
+              <tr>
+                <td>
+                  {{ basket_item.item_sku.title }}
+                </td>
+                <td>
+                  {{ basket_item.quantity }} <a href="{% url 'baskets:add_item' item=basket_item.item_sku.slug %}"><i
+                  class="fas fa-plus"></i></a> / <i class="fas fa-minus"></i>
+                </td>
+                <td>
+                  {{ basket_item.total_price_formatted }}
+                </td>
+                <td>
+                  <a href="{% url 'baskets:delete_item' item=basket_item.item_sku.slug %}"><i
+                    class="far fa-trash-alt"></i></a>
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="row">
+          <div class="col-md-12 text-right">
+            <a href="{% url 'basket:checkout' %}" class="btn btn-primary">Checkout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

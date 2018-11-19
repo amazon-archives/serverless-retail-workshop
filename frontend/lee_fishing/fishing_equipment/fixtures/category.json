@@ -1,0 +1,72 @@
+[
+    {
+        "model": "fishing_equipment.category",
+        "pk": "021831c9-22ab-4437-9505-edb6b24e2e0f",
+        "fields": {
+            "title": "Rods",
+            "slug": "rods",
+            "created_date": "2018-10-02T20:28:29.073Z",
+            "modified_date": "2018-10-02T20:37:13.183Z"
+        }
+    },
+    {
+        "model": "fishing_equipment.category",
+        "pk": "9be69ffd-1fb9-4cba-8203-1446898857c1",
+        "fields": {
+            "title": "Reels",
+            "slug": "reels",
+            "created_date": "2018-10-02T20:28:29.073Z",
+            "modified_date": "2018-10-02T20:37:13.183Z"
+        }
+    },
+    {
+        "model": "fishing_equipment.category",
+        "pk": "be3f1c9d-c3bd-45e7-acb0-80efb40c61ef",
+        "fields": {
+            "title": "Hard baits",
+            "slug": "hard-baits",
+            "created_date": "2018-10-02T20:28:29.073Z",
+            "modified_date": "2018-10-02T20:37:13.183Z"
+        }
+    },
+    {
+        "model": "fishing_equipment.category",
+        "pk": "282a8539-a263-49e1-b028-1bb4acc7216d",
+        "fields": {
+            "title": "Soft baits",
+            "slug": "soft-baits",
+            "created_date": "2018-10-02T20:28:29.073Z",
+            "modified_date": "2018-10-02T20:37:13.183Z"
+        }
+    },
+    {
+        "model": "fishing_equipment.category",
+        "pk": "21edc280-8357-479f-a35e-94402bab367d",
+        "fields": {
+            "title": "Swimbaits",
+            "slug": "swim-baits",
+            "created_date": "2018-10-02T20:28:29.073Z",
+            "modified_date": "2018-10-02T20:37:13.183Z"
+        }
+    },
+    {
+        "model": "fishing_equipment.category",
+        "pk": "9608833d-18ed-4952-bc61-faf83e7514f8",
+        "fields": {
+            "title": "Tackle storage",
+            "slug": "tackle-storage",
+            "created_date": "2018-10-02T20:28:29.073Z",
+            "modified_date": "2018-10-02T20:37:13.183Z"
+        }
+    },
+    {
+        "model": "fishing_equipment.category",
+        "pk": "50b2418b-b9e8-4d7e-9ff6-2bdf801239ea",
+        "fields": {
+            "title": "Waders",
+            "slug": "waders",
+            "created_date": "2018-10-02T20:28:29.073Z",
+            "modified_date": "2018-10-02T20:37:13.183Z"
+        }
+    }
+]

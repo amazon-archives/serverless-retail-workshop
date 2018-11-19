@@ -1,0 +1,5 @@
+[run]
+include = lee_fishing/*
+omit = *migrations*, *tests*
+plugins =
+    django_coverage_plugin

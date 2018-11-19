@@ -1,0 +1,463 @@
+#!/bin/sh
+
+set -e
+
+program_name=$(basename $0)
+
+install_cdk() {
+    . /home/ec2-user/.nvm/nvm.sh
+    nvm install v8.12.0
+    npm i -g aws-cdk@0.17.0
+}
+
+check_region() {
+    REGION=`aws configure get region`
+    if [ $REGION != "us-east-1" ]; then
+        echo "** INVALID REGION - EXITING **"
+        exit 1
+    fi
+}
+
+check_dependency() {
+    local cmd=$1
+    local inst=$2
+
+    if ! which ${cmd} > /dev/null 2>&1; then
+        if [ ! -z "$inst" ]; then
+            ${inst}
+            echo ""
+            echo ""
+            echo ""
+        else
+            exit 1
+        fi
+    fi
+}
+
+wait_for_env() {
+    local environment_name=$1
+    local status=$2
+    local current_status=''
+    while true; do
+        echo "Checking for status ${status}"
+        current_status=`aws elasticbeanstalk describe-environment-health --environment-name ${environment_name} --attribute-names Status | jq -r .Status`
+        if [[ $current_status == $status ]]; then
+            break
+        fi
+        echo "Nope, waiting to try again... (got ${current_status})"
+        sleep 5
+    done
+    echo "** Environment reached status required **"
+}
+
+get_value() {
+    local key=$1
+    local command="aws cloudformation describe-stacks --stack-name TheFishingShopWorkshop | jq -r '.Stacks[0].Outputs[] | select(.OutputKey | startswith(\"${key}\")) | .OutputValue'"
+    echo `eval ${command}`
+}
+
+check_dependencies() {
+    check_dependency jq "sudo yum install -y jq"    
+    check_dependency aws
+
+    if ! which yarn > /dev/null 2>&1; then
+        curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
+        sudo yum install -y yarn
+    fi
+
+    if [ ! -f ~/.nvm/versions/node/v8.12.0/bin/cdk ]; then
+        install_cdk
+    fi
+
+    _javac=java
+    version=$("$_javac" -version 2>&1 | awk -F '"' '/version/ {print $2}')
+    if [[ "$version" < "1.8" ]]; then
+        sudo yum remove -y java-1.7.0-openjdk java-1.7.0-openjdk-devel
+        sudo yum install -y java-1.8.0-openjdk-devel
+    fi
+}
+
+sub_help() {
+    echo "Usage: $program_name <subcommand> [options]\n"
+    echo "Subcommands:"
+    echo "    get_value                Get value from deployed stack"
+    echo "    set_database_url         Set the DATABASE_URL automatically"
+    echo "    install                  install deps (happens every run)"
+    echo "    create_ssh_key           creates SSH key"
+    echo "    get_bastion_address      get public hostname of bastion"
+    echo "    ssh_to_bastion           SSH directly to bastion"
+    echo ""
+    echo "    upload_frontend          upload a version of the frontend"
+    echo "    deploy_frontend          deploy a version of the frontend"
+    echo ""
+    echo "    upload_backend           upload a version of the backend"
+    echo "    deploy_backend           deploy a version of the backend"
+    echo ""
+    echo "    upload_backend_lambda    upload a version of the backend to AWS Lambda"
+    echo "    deploy_backend_lambda    deploy a version of the backend to AWS Lambda"
+    echo ""
+    echo "    upload_sqs_lambda        upload a version of the SQS Forwarder AWS Lamba"
+    echo "    deploy_sqs_receiver      deploy a version of the SQS Lambda as an API receiver"
+    echo "    deploy_sqs_forwarder     deploy a version of the SQS Lambda as an API forwarder"
+    echo ""
+    echo "    get_rest_api_components  output the Django environment variables for API Gateway"
+    echo "    set_backend_api_gateway  ez-mode setting of Django environment variabls for API Gateway"
+    echo ""
+    echo "For help with each subcommand run:"
+    echo "$program_name <subcommand> -h|--help"
+    echo ""
+}
+
+sub_install() {
+    echo ""
+}
+
+sub_create_ssh_key() {
+    local param=$1
+    case $param in
+        "-h" | "--help")
+            echo "Usage: $program_name create_ssh_key"
+            ;;
+        *)
+            if [ ! -f ~/.ssh/fishing-key.pem ]; then
+                aws ec2 create-key-pair --key-name FishingKey | jq -r .KeyMaterial > ~/.ssh/fishing-key.pem
+                chmod 0600 ~/.ssh/fishing-key.pem
+                echo 'Key created and secured'
+            else
+                echo 'Key already exists'
+            fi
+            ;;
+    esac
+}
+
+sub_get_value() {
+    local param=$1
+    case $param in
+        "" | "-h" | "--help")
+            echo "Usage: $program_name get_value <value>"
+            ;;
+        *)
+            local key=$1
+            local value=`get_value ${key}`
+            echo $value
+            ;;
+    esac
+}
+
+sub_set_database_url() {
+    local param=$1
+    case $param in
+        "-h" | "--help")
+            echo "Usage: $program_name set_database_url"
+            ;;
+        *)
+            local value=`get_value ShopFrontendDjangoDatabaseUrl`
+            aws elasticbeanstalk update-environment --environment-name ShopFrontend --option-settings Namespace=aws:elasticbeanstalk:application:environment,OptionName=DATABASE_URL,Value=${value}
+            wait_for_env ShopFrontend Ready
+            ;;
+    esac
+}
+
+sub_upload_frontend() {
+    local param=$1
+    local version=$2
+
+    case $param in
+        "" | "-h" | "--help")
+            echo "Usage: $program_name upload_frontend <frontend.zip> <version>"
+            ;;
+        *)
+            if [[ $version != v* ]]; then
+                echo "Version should v and a number like v1"
+                exit 1
+            fi
+            local bucket_name=`get_value DeploymentAssetsDeploymentBucket`
+            aws s3 cp $param s3://$bucket_name/${version}_frontend.zip
+            aws elasticbeanstalk create-application-version \
+                --application-name ShopFrontend \
+                --version-label $version \
+                --source-bundle S3Bucket=$bucket_name,S3Key=${version}_frontend.zip
+            wait_for_env ShopFrontend Ready
+            ;;
+    esac
+}
+
+sub_upload_backend() {
+    local param=$1
+    local version=$2
+
+    case $param in
+        "" | "-h" | "--help")
+            echo "Usage: $program_name upload_backend <backend-0.0.1-SNAPSHOT.jar> <version>"
+            ;;
+        *)
+            if [[ $version != v* ]]; then
+                echo "Version should v and a number like v1"
+                exit 1
+            fi
+            local bucket_name=`get_value DeploymentAssetsDeploymentBucket`
+            aws s3 cp $param s3://$bucket_name/${version}_backend.jar
+            aws elasticbeanstalk create-application-version \
+                --application-name ShopBackend \
+                --version-label $version \
+                --source-bundle S3Bucket=$bucket_name,S3Key=${version}_backend.jar
+            wait_for_env ShopBackend Ready
+            ;;
+    esac
+}
+
+sub_deploy_frontend() {
+    local param=$1
+
+    case $param in
+        "" | "-h" | "--help")
+            echo "Usage: $program_name deploy_frontend <version>"
+            ;;
+        *)
+            if [[ $param != v* ]]; then
+                echo "Version should v and a number like v1"
+                exit 1
+            fi
+            aws elasticbeanstalk update-environment \
+                --environment-name ShopFrontend \
+                --version-label $param
+            wait_for_env ShopFrontend Ready
+            ;;
+    esac
+}
+
+sub_deploy_backend() {
+    local param=$1
+
+    case $param in
+        "" | "-h" | "--help")
+            echo "Usage: $program_name deploy_backend <version>"
+            ;;
+        *)
+            if [[ $param != v* ]]; then
+                echo "Version should v and a number like v1"
+                exit 1
+            fi
+            aws elasticbeanstalk update-environment \
+                --environment-name ShopBackend \
+                --version-label $param
+            wait_for_env ShopBackend Ready
+            ;;
+    esac
+}
+
+sub_upload_backend_lambda() {
+    local param=$1
+    local version=$2
+
+    case $param in
+        "" | "-h" | "--help")
+            echo "Usage: $program_name upload_backend_lambda <backend.jar> <version>"
+            ;;
+        *)
+            if [[ $version != v* ]]; then
+                echo "Version should v and a number like v1"
+                exit 1
+            fi
+            local bucket_name=`get_value DeploymentAssetsDeploymentBucket`
+            aws s3 cp $param s3://$bucket_name/${version}_back_end_lambda.jar
+            ;;
+    esac
+}
+
+sub_deploy_backend_lambda() {
+    local param=$1
+
+    case $param in
+        "" | "-h" | "--help")
+            echo "Usage: $program_name deploy_backend_lambda <version>"
+            ;;
+        *)
+            if [[ $param != v* ]]; then
+                echo "Version should v and a number like v1"
+                exit 1
+            fi
+            local function_name=`get_value ShopBackendLambdaFunctionName`
+            local bucket_name=`get_value DeploymentAssetsDeploymentBucket`
+
+            aws lambda update-function-code \
+                --function-name $function_name \
+                --s3-bucket $bucket_name \
+                --s3-key ${param}_back_end_lambda.jar \
+                --publish
+            ;;
+    esac
+}
+
+sub_update_edge_lambda() {
+        local param=$1
+
+    case $param in
+        "-h" | "--help")
+            echo "Usage: $program_name deploy_backend_lambda"
+            ;;
+        *)
+            local function_name=`get_value CDNEdgeFunctionName`
+            pushd lambda_at_edge
+            [ -e /tmp/edge.zip ] && rm /tmp/edge.zip
+            zip -X /tmp/edge.zip index.js
+            popd
+
+            aws lambda update-function-code \
+                --function-name $function_name \
+                --zip-file fileb:///tmp/edge.zip \
+                --publish
+            ;;
+    esac
+}
+
+sub_get_rest_api_components() {
+    readonly URI_REGEX='^(([^:/?#]+):)?(//((([^:/?#]+)@)?([^:/?#]+)(:([0-9]+))?))?(/([^?#]*))(\?([^#]*))?(#(.*))?'
+    #                    ↑↑            ↑  ↑↑↑            ↑         ↑ ↑            ↑ ↑        ↑  ↑        ↑ ↑
+    #                    |2 scheme     |  ||6 userinfo   7 host    | 9 port       | 11 rpath |  13 query | 15 fragment
+    #                    1 scheme:     |  |5 userinfo@             8 :…           10 path    12 ?…       14 #…
+    #                                  |  4 authority
+    #                                  3 //…
+    local uri=`get_value ShopBackendRestApiUrl`
+
+    if [[ "$uri" =~ $URI_REGEX ]]; then
+        echo "BACKEND_PROTOCOL = ${BASH_REMATCH[2]}"
+        echo "BACKEND_DOMAIN = ${BASH_REMATCH[7]}"
+        echo "BACKEND_URI_PREFIX = ${BASH_REMATCH[10]}"
+    fi
+}
+
+sub_set_backend_api_gateway() {
+    readonly URI_REGEX='^(([^:/?#]+):)?(//((([^:/?#]+)@)?([^:/?#]+)(:([0-9]+))?))?(/([^?#]*))(\?([^#]*))?(#(.*))?'
+    #                    ↑↑            ↑  ↑↑↑            ↑         ↑ ↑            ↑ ↑        ↑  ↑        ↑ ↑
+    #                    |2 scheme     |  ||6 userinfo   7 host    | 9 port       | 11 rpath |  13 query | 15 fragment
+    #                    1 scheme:     |  |5 userinfo@             8 :…           10 path    12 ?…       14 #…
+    #                                  |  4 authority
+    #                                  3 //…
+    local uri=`get_value ShopBackendRestApiUrl`
+
+    if [[ "$uri" =~ $URI_REGEX ]]; then
+        JSON_OUTPUT="
+[
+  {
+    \\\"Namespace\\\": \\\"aws:elasticbeanstalk:application:environment\\\",
+    \\\"OptionName\\\": \\\"BACKEND_PROTOCOL\\\",
+    \\\"Value\\\": \\\"${BASH_REMATCH[2]}\\\"
+  },
+  {
+    \\\"Namespace\\\": \\\"aws:elasticbeanstalk:application:environment\\\",
+    \\\"OptionName\\\": \\\"BACKEND_DOMAIN\\\",
+    \\\"Value\\\": \\\"${BASH_REMATCH[7]}\\\"
+  },
+  {
+    \\\"Namespace\\\": \\\"aws:elasticbeanstalk:application:environment\\\",
+    \\\"OptionName\\\": \\\"BACKEND_URI_PREFIX\\\",
+    \\\"Value\\\": \\\"${BASH_REMATCH[10]}\\\"
+  }
+]
+"
+        JSON_OUTPUT=${JSON_OUTPUT//$'\n'/}
+
+        local CMD="aws elasticbeanstalk update-environment --environment-name ShopFrontend --option-settings \"${JSON_OUTPUT}\""
+        eval $CMD
+        wait_for_env ShopFrontend Ready
+    fi
+}
+
+sub_upload_sqs_lambda() {
+    local param=$1
+    local version=$2
+
+    case $param in
+        "" | "-h" | "--help")
+            echo "Usage: $program_name upload_sqs_lambda <sqsforwarder.jar> <version>"
+            ;;
+        *)
+            if [[ $version != v* ]]; then
+                echo "Version should v and a number like v1"
+                exit 1
+            fi
+            local bucket_name=`get_value DeploymentAssetsDeploymentBucket`
+            aws s3 cp $param s3://$bucket_name/${version}_sqsforwarder_lambda.jar
+            ;;
+    esac
+}
+
+sub_deploy_sqs_receiver() {
+    local param=$1
+
+    case $param in
+        "" | "-h" | "--help")
+            echo "Usage: $program_name deploy_sqs_receiver <version>"
+            ;;
+        *)
+            if [[ $param != v* ]]; then
+                echo "Version should v and a number like v1"
+                exit 1
+            fi
+            local function_name=`get_value QueueProxyToSQSFunctionName`
+            local bucket_name=`get_value DeploymentAssetsDeploymentBucket`
+
+            aws lambda update-function-code \
+                --function-name $function_name \
+                --s3-bucket $bucket_name \
+                --s3-key ${param}_sqsforwarder_lambda.jar \
+                --publish
+            ;;
+    esac
+}
+
+sub_deploy_sqs_forwarder() {
+    local param=$1
+
+    case $param in
+        "" | "-h" | "--help")
+            echo "Usage: $program_name deploy_sqs_forwarder <version>"
+            ;;
+        *)
+            if [[ $param != v* ]]; then
+                echo "Version should v and a number like v1"
+                exit 1
+            fi
+            local function_name=`get_value QueueProxyFromSQSFunctionName`
+            local bucket_name=`get_value DeploymentAssetsDeploymentBucket`
+
+            aws lambda update-function-code \
+                --function-name $function_name \
+                --s3-bucket $bucket_name \
+                --s3-key ${param}_sqsforwarder_lambda.jar \
+                --publish
+            ;;
+    esac
+}
+
+sub_get_bastion_address() {
+    local asg_name=`get_value BastionAutoScalingGroupName`
+    for i in `aws autoscaling describe-auto-scaling-groups --auto-scaling-group-name $asg_name | grep -i instanceid  | awk '{ print $2}' | cut -d',' -f1| sed -e 's/"//g'`
+    do
+        aws ec2 describe-instances --instance-ids $i | grep -i PublicDnsName | awk '{ print $2 }' | head -1 | cut -d"," -f1 | sed -e 's/^"//' -e 's/"$//'
+    done;
+}
+
+sub_ssh_to_bastion() {
+    ssh -i ~/.ssh/fishing-key.pem ec2-user@`sub_get_bastion_address`
+}
+
+check_dependencies
+check_region
+
+subcommand=$1
+case $subcommand in
+    "" | "-h" | "--help")
+        sub_help
+        ;;
+    *)
+        shift
+        sub_${subcommand} $@
+        if [ $? = 127 ]; then
+            echo "Error: '$subcommand' is not a known subcommand." >&2
+            echo "       Run '$program_name --help' for a list of known subcommands." >&2
+            exit 1
+        fi
+        ;;
+esac

@@ -1,0 +1,92 @@
+[
+    {
+        "model": "fishing_equipment.product",
+        "pk": "067949e1-8a2e-482a-b5d6-39cc7e18741e",
+        "fields": {
+            "title": "Spinning Reel",
+            "description": "The center of gravity in this Spinning Reel means the oscillation gear is now closer to the rod, making the feel more balanced. Propulsion Line Management system produces longer casts and less backlash. Instant anti-reverse for zero backplay. Spool has an angled spool lip that allows the line to leave the spool with less friction for more casting distance. Compact body is light, rigid and suited for anything from freshwater to inshore fishing. Lays the line evenly across the spool. Reduces wobble during the retrieve.",
+            "slug": "spinning-reel",
+            "primary_category": "9be69ffd-1fb9-4cba-8203-1446898857c1",
+            "picture": "",
+            "smaller_picture": "",
+            "in_stock": true,
+            "price": 2999,
+            "deleted_at": null,
+            "created_date": "2018-10-09T06:48:44.984Z",
+            "modified_date": "2018-10-09T06:48:44.984Z",
+            "categories": []
+        }
+    },
+    {
+        "model": "fishing_equipment.product",
+        "pk": "2d322876-60eb-403b-832f-1574ddc65fc4",
+        "fields": {
+            "title": "Muskie Casting Rod",
+            "description": "Hunting down big muskies requires a rod that can handle big, heavy rigs and crushing hits. Fast-action, SCII graphite, with medium-heavy to extra-heavy power, tames hard-thrashing fish. All have aluminum-oxide guides, tip tops with zirconium inserts, premium-grade cork split-grip handles and DPS reel seats.",
+            "slug": "muskie-casting-rod",
+            "primary_category": "021831c9-22ab-4437-9505-edb6b24e2e0f",
+            "picture": "",
+            "smaller_picture": "",
+            "in_stock": true,
+            "price": 14999,
+            "deleted_at": null,
+            "created_date": "2018-10-09T06:36:42.043Z",
+            "modified_date": "2018-10-09T06:36:42.043Z",
+            "categories": []
+        }
+    },
+    {
+        "model": "fishing_equipment.product",
+        "pk": "502178f2-83c9-4cbc-96ef-d9f7c3241732",
+        "fields": {
+            "title": "Baitcasting Reel",
+            "description": "Perfect for tangling with your favorite saltwater or freshwater game fish, This Baitcasting Reel delivers massive cranking power in the harshest conditions. Thanks to water-resistant technology its 5+1 bearing system keeps running smooth in saltwater environments. The body combines with smooth gear technology and high-efficiency gearing to add muscle to your big baits and even bigger fish.",
+            "slug": "baitcasting-reel",
+            "primary_category": "9be69ffd-1fb9-4cba-8203-1446898857c1",
+            "picture": "",
+            "smaller_picture": "",
+            "in_stock": true,
+            "price": 29999,
+            "deleted_at": null,
+            "created_date": "2018-10-09T06:42:53.646Z",
+            "modified_date": "2018-10-09T06:42:53.646Z",
+            "categories": []
+        }
+    },
+    {
+        "model": "fishing_equipment.product",
+        "pk": "e0cdadb1-7ff5-4a14-a38b-396aef0b3aaa",
+        "fields": {
+            "title": "Tourney Casting Rod",
+            "description": "Featuring species-specific actions and designed by in-house experts, our Casting Rods deliver an incredible performance-to-cost ratio. Super-lightweight Japanese graphite blank construction delivers exceptional strength, while P-cork handles offer fatigue-fighting comfort for long days on the water. Stainless steel guides with titanium-oxide inserts stand up to heavy fish and inclement weather, plus they facilitate fast line speed for long, accurate casts. Medium to heavy actions are ideal for targeting big bass.",
+            "slug": "tourney-casting-rod",
+            "primary_category": "021831c9-22ab-4437-9505-edb6b24e2e0f",
+            "picture": "",
+            "smaller_picture": "",
+            "in_stock": true,
+            "price": 4999,
+            "deleted_at": null,
+            "created_date": "2018-10-09T06:32:18.236Z",
+            "modified_date": "2018-10-09T06:32:24.320Z",
+            "categories": []
+        }
+    },
+    {
+        "model": "fishing_equipment.product",
+        "pk": "ec5abbfa-cbe9-495b-ac6e-d2cdb84d4003",
+        "fields": {
+            "title": "Square-Bill Silent Crankbait",
+            "description": "This Square-Bill Silent Crankbait is a silent assassin perfect for shallow-water power fishing. In addition to allowing the crankbait to bounce and deflect off cover, the square-bill design also allows this crank to constantly wander with an erratic searching action while still running true. Does not have internal rattles, making it absolutely perfect for skittish, pressured fish.",
+            "slug": "square-bill-silent-crankbait",
+            "primary_category": "be3f1c9d-c3bd-45e7-acb0-80efb40c61ef",
+            "picture": "",
+            "smaller_picture": "",
+            "in_stock": true,
+            "price": 639,
+            "deleted_at": null,
+            "created_date": "2018-10-09T06:51:08.165Z",
+            "modified_date": "2018-10-09T06:51:08.165Z",
+            "categories": []
+        }
+    }
+]

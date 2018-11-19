@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% load static i18n %}
+
+{% block title %}{{ object.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    &nbsp;
+  </div>
+  <div class="row">
+    <div class="col-sm">
+      <img src="{% static 'images/400x400.png' %}" alt="Obvious Placeholder Cage Image">
+    </div>
+    <div class="col-sm">
+      <h1>{{ object.title }}</h1>
+      <a href="{% url 'baskets:add_item' item=object.slug %}" class="btn btn-dark"><i class="fas fa-shopping-basket"></i> Add to Basket</a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm">
+      &nbsp;
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm">
+      {{ object.description }}
+    </div>
+  </div>
+</div>
+{% endblock %}

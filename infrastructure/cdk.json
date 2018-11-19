@@ -1,0 +1,17 @@
+{
+  "app": "/bin/bash ./app.sh",
+  "context": {
+    "availability-zones:965191607613:eu-west-1": [
+      "eu-west-1a",
+      "eu-west-1b",
+      "eu-west-1c"
+    ],
+    "ssm:965191607613:eu-west-1:/aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2": "ami-047bb4163c506cd98",
+    "availability-zones:account=965191607613:region=eu-west-1": [
+      "eu-west-1a",
+      "eu-west-1b",
+      "eu-west-1c"
+    ],
+    "ssm:account=965191607613:parameterName=/aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2:region=eu-west-1": "ami-047bb4163c506cd98"
+  }
+}
