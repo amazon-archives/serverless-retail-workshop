@@ -4,12 +4,12 @@ Exercise #4
 In this exercise we're going to explore some of the things that we have
 created so far and how we can monitor them.
 
-`AWS X-Ray`_ is a distributed tracing system. AWS X-Ray helps developers
-analyze and debug production, distributed applications, such as those
-built using a microservices architecture. With X-Ray, you can understand
-how your application and its underlying services are performing to
-identify and troubleshoot the root cause of performance issues and
-errors. We can use it to have a look at what is going on inside our new
+`AWS X-Ray <https://aws.amazon.com/xray/>`_ is a distributed tracing system.
+AWS X-Ray helps developers analyze and debug production, distributed
+applications, such as those built using a microservices architecture. With
+X-Ray, you can understand how your application and its underlying services are
+performing to identify and troubleshoot the root cause of performance issues
+and errors. We can use it to have a look at what is going on inside our new
 deployed setup. We can have a look at not only our Frontend application
 but trace all the way through to our Backend API within the same
 request.
@@ -23,8 +23,8 @@ To start with, make sure you have a Tab in a browser opened with the Shop in
 it. If you can't remember how to do that, pop back to :doc:`exercise_1_post` to
 find out how to load that from Step 4.
 
-In another tab, open up
-`AWS X-Ray <https://console.aws.amazon.com/xray/home?region=us-east-1>`_. You
+In another tab, open up the
+`AWS X-Ray Console <https://console.aws.amazon.com/xray/home?region=us-east-1>`_. You
 can do this by holding down ⌘ (CTRL on Windows) and clicking the link.
 
 By default AWS X-Ray will show a Service Map from the last 5 minutes.
@@ -83,5 +83,3 @@ to call services like Amazon RDS or Amazon DynamoDB, you would see that here.
 This exercise scratches the surface of the kinds of tracing you can do with
 AWS X-Ray. You can find more information about X-Ray
 `here <https://aws.amazon.com/xray/>`_.
-
-.. _AWS X-Ray : https://aws.amazon.com/xray/
