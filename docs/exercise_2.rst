@@ -97,11 +97,9 @@ Lambda, and to initiate the upload of the JAR for use by our function:
 .. code-block:: bash
     :linenos:
 
-    cd
-    cd environment
-    cd backend
+    cd ~/environment/backend
     ./gradlew shadowJar
-    cd ..
+    cd ~/environment
     ./tools upload_backend_lambda backend/build/libs/backend-0.0.1-SNAPSHOT-all.jar v1
 
 5. Now that we've built the application for AWS Lambda, let's deploy our

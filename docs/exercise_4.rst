@@ -4,10 +4,20 @@ Exercise #4
 In this exercise we're going to explore some of the things that we have
 created so far and how we can monitor them.
 
-AWS X-Ray is a distributed tracing system. We can use it to have a look at
-what is going on inside our new deployed setup. We can have a look at not only
-our Frontend application but trace all the way through to our Backend API
-within the same request.
+`AWS X-Ray`_ is a distributed tracing system. AWS X-Ray helps developers
+analyze and debug production, distributed applications, such as those
+built using a microservices architecture. With X-Ray, you can understand
+how your application and its underlying services are performing to
+identify and troubleshoot the root cause of performance issues and
+errors. We can use it to have a look at what is going on inside our new
+deployed setup. We can have a look at not only our Frontend application
+but trace all the way through to our Backend API within the same
+request.
+
+.. Note:: Many AWS services have automatic or simplified integrations
+          with AWS X-Ray. For additional information about how to
+          integrate and leverage the SDK, take a look at the
+          `documentation <https://docs.aws.amazon.com/xray/latest/devguide/aws-xray.html>`_.
 
 To start with, make sure you have a Tab in a browser opened with the Shop in
 it. If you can't remember how to do that, pop back to :doc:`exercise_1_post` to
@@ -27,8 +37,8 @@ By default AWS X-Ray will show a Service Map from the last 5 minutes.
 
 On the left hand side, click `Traces <https://console.aws.amazon.com/xray/home?region=us-east-1#/traces>`_.
 
-This will display a lot of information, but we can filter this. Let's test
-this:
+This will display a lot of information, but we can filter it down to
+show only what we care about. Let's test this:
 
 In the main search box, enter the following:
 
@@ -36,8 +46,9 @@ In the main search box, enter the following:
 
     http.url ENDSWITH "baitcasting-reel/"
 
-What this will do is only so traces where the URL ends in baitcasting-reel; so
-within the Shop browse Reels and then Baitcasting Reel.
+What this apply a filter to the search view to show only so traces where
+the URL ends in 'baitcasting-reel'; so within the Shop browse Reels and
+then Baitcasting Reel.
 
 Go back to the tab with AWS X-Ray in it and click refresh and you will see an
 item in the Trace List. Now click it and you'll see the detail behind the
@@ -70,4 +81,7 @@ to the Lambda function. If the Lambda function (our Backend service) was then
 to call services like Amazon RDS or Amazon DynamoDB, you would see that here.
 
 This exercise scratches the surface of the kinds of tracing you can do with
-AWS X-Ray. You can find more information about X-Ray on the AWS website.
+AWS X-Ray. You can find more information about X-Ray
+`here <https://aws.amazon.com/xray/>`_.
+
+.. _AWS X-Ray : https://aws.amazon.com/xray/

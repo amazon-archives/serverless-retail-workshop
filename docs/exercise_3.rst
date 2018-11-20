@@ -1,14 +1,17 @@
 Exercise #3
 ===========
 
-Our most popular product is the Muskie Casting Rod! We need to ensure that
+After analyzing our sales over the past several seasons, we found that
+our most popular product is the Muskie Casting Rod! We need to ensure that
 people buying this product don’t cause our website to be overloaded and stop
 other customers buying our Tourney Casting Rod.
 
-Did you know that you can send AWS CloudFront traffic to different
-destinations based on URI? We can achieve our goals by using a feature in AWS
-CloudFront that allows for multiple origins and multiple behaviors and use
-these to dictate how traffic reaches them.
+In order to accomplish this, we're going to leverage another feature of AWS
+CloudFront. AWS CloudFront allows you to specify traffic routing behavior
+based on the request URI. Since we want to ensure the traffic coming to our
+most popular product scales with the demand, we can leverage a feature in
+AWS CloudFront that allows for multiple origins and multiple behaviors and
+use these to dictate how traffic reaches them.
 
 Thankfully our initial deployment during Exercise #0 deployed an Amazon S3
 Bucket already configured securely against our AWS CloudFront distribution.
@@ -19,9 +22,9 @@ the documentation at
 Part 1 - Split Origin CloudFront
 --------------------------------
 
-Before we get started we probably want to have some content in the bucket to
-serve from. This **does not** mean that that content has to be in a public
-bucket!
+Before we get started, we need to upload the content we want to serve to
+our target S3 bucket. This **does not** mean that that content has to be
+in a public bucket!
 
 1. The static website needs building so, in the Cloud9 Console:
 
@@ -82,11 +85,12 @@ Part 2 - Fixing our product page
 
 We better do this quickly as we've broken production! Oops!
 
-The reason we got an error in the previous is because, when you request a URL
-from the browser with nothing on the end, there is no document to serve. This
-is normally something done by setting a Default Document. Although AWS S3
-supports doing this if we were using S3 websites, we are not and so we need
-to do this via `AWS Lambda@Edge <https://aws.amazon.com/lambda/edge/>`_.
+The reason we got an error in the previous step is because, when you request
+a URL from the browser with nothing on the end, there is no document to
+serve. This is normally something done by setting a Default Document.
+Although AWS S3 supports doing this if we were using S3 websites, we are
+not and so we need to do this via
+`AWS Lambda@Edge <https://aws.amazon.com/lambda/edge/>`_.
 
 1. In the Cloud9 Terminal
 

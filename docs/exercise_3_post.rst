@@ -1,8 +1,8 @@
 Exercise #3 - Checklist for completion
 ======================================
 
-1. Pop over to the CloudFront service in the Console and copy the domain name
-   for the Distribution and load it up in a new tab.
+1. Pop over to the CloudFront service in the Console and copy the domain
+   name for the Distribution and load it up in a new tab.
 2. Click Rods and then the Muskie Casting Rod
 3. The site will look completely different!
 4. Click the `Sweet - Buy it now` button
@@ -29,6 +29,11 @@ We are also only diverting traffic to our most popular product via the static
 website. This allows the shop to continue functioning the way it was for
 full priced traffic. Essentially, we are helping with pressure points of the
 shop.
+
+.. Note:: If we were designing this architecture from scratch, we would
+          certainly do things a little differently. But this demonstrates
+          a viable way to migrate elements of the same application to
+          cloud native architectures while while re-platforming.
 
 .. image:: images/exercise_3_arch.png
    :height: 800px

@@ -5,11 +5,29 @@ Exercise #5 (Optional)
 
 We have a reasonable set up so far with our service being served by AWS Lambda.
 
-What we can do further to this is to use Amazon Simple Queue Service to
-deal with back pressure. However, we don't want to rewrite our service to do
-this. So what we can do is use a small service to emulate our backend
-service which just forwards the request to Amazon SQS and then have a receiver
-which forwards those requests onto the original backend API Gateway.
+Now, although the service is running with full scaling capabilities on AWS
+Lambda, there are potentially downstream services - databases, job runners,
+or physical warehouse limitations - that might limit the speed with which
+our overall infrastructure can respond to higher demand and scale.
+
+Ideally, these downstream services would be re-architected to handle the
+new scaling requirements, but in the meantime, we can build a small queuing
+system in front of our service to handle this. To accomplish this, we'll
+use an `Amazon Simple Queue Service`_ queue.
+
+Amazon Simple Queue Service (SQS) is a fully managed message queuing
+service that enables you to decouple and scale micro-services, distributed
+systems, and serverless applications. SQS eliminates the complexity and
+overhead associated with managing and operating message oriented
+middleware, and empowers developers to focus on differentiating work.
+Using SQS, you can send, store, and receive messages between software
+components at any volume, without losing messages or requiring other
+services to be available.
+
+Leveraging SQS, we can build a small service to emulate our backend
+service which just forwards the request to Amazon SQS and then have a
+receiver which forwards those requests onto the original backend
+API Gateway.
 
 To do this we have one .jar file (or, Java project) with two different
 AWS Lambda functions to be called.
@@ -17,8 +35,10 @@ AWS Lambda functions to be called.
 The first of these is `QueueGrabber.java`. Let's examine the file here to see
 how this works as we don't use any framework here to do this. Part of the
 reason for this is that we get to avoid time-intensive things like Dependency
-Injection. Although you can speed this up using things like Dagger, it's just
-easier in this case not use a Framework at all.
+Injection.
+
+.. Note:: Although you can speed this up using things like Dagger, it's just
+          easier in this case not use a Framework at all.
 
 .. code-block:: java
 
@@ -34,9 +54,10 @@ easier in this case not use a Framework at all.
     }
 
 Here we quickly check if the verb is OPTIONS, if so, we go ahead and pretend
-that all the things are allowed and CORS is okay from any origin. In a real
-world scenario you'd likely limit this to the specific domain that the site
-is hosted.
+that all the things are allowed and CORS is okay from any origin.
+
+.. Note:: In a real world scenario, you'd likely limit this to the specific
+          domain that the site is hosted.
 
 We then have a `switch` statement around the path requested rather than
 a full blown router. Let's compare the two paths:
@@ -51,7 +72,7 @@ a full blown router. Let's compare the two paths:
                 .withStatusCode(200)
                 .withBody("PONG");
 
-Here we just return a 'PONG' which emulates the existing service.
+Above, we just return a 'PONG' which emulates the existing service.
 
 .. code-block:: java
     :emphasize-lines: 3
@@ -71,9 +92,10 @@ The important line is emphasized above. It sends the body of the request into
 Amazon SQS. There's no validation here, it could easily be improved with some
 order validation before sending on.
 
-We then return the message ID back to the client. This is, obviously, a slight
-difference to the existing API and the client would normally need to be updated
-to cope with this.
+We then return the message ID back to the client.
+
+.. Note:: This is, obviously, a slight difference to the existing API and
+          the client would normally need to be updated to cope with this.
 
 **The receiver from the Queue**
 
@@ -118,8 +140,6 @@ message received.
     }
 
 We blindly take the body and then POST it to the original Order URL.
-
-
 
 **Let's go ahead and deploy it all!**
 
@@ -238,4 +258,6 @@ We blindly take the body and then POST it to the original Order URL.
    processing API.
 
 We have successfully made a nearly compatible end point that can be used to
-take pressure off our backend service.
+take pressure off our backend services.
+
+.. _Amazon Simple Queue Service : https://aws.amazon.com/sqs/
