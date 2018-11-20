@@ -13,7 +13,6 @@ cd out/repo
 
 # Remove things that aren't for the zip file
 rm -rf .git
-rm Config
 
 # Build docs folder
 cd docs
