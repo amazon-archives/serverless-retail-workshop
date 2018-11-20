@@ -43,7 +43,7 @@ Steps:
    hours.
 9. Click `Next Step`
 10. Review the changes and click `Create environment`
-11.	After a while the IDE will appear!
+11. After a while the IDE will appear!
 
     .. image:: images/cloud9.png
 
@@ -56,7 +56,7 @@ Now that we've completed setup of our IDE, we're going to download the files
 provided by our engineers to configure our Cloud9 IDE with the packages and
 tools required for launching the new fishing shop website.
 
-13.	Run the following commands - each line is a separate command so
+13. Run the following commands - each line is a separate command so
 
     .. Hint:: Although it's tempting to copy all this at once - don't. Copy
               each line one by one and it'll be a lot more likely to be
