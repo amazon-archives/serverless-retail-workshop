@@ -6,8 +6,8 @@ program_name=$(basename $0)
 
 install_cdk() {
     . /home/ec2-user/.nvm/nvm.sh
-    nvm install v8.12.0
-    npm i -g aws-cdk@0.17.0
+    nvm install
+    npm i -g aws-cdk@0.18.1
 }
 
 check_region() {
@@ -57,7 +57,7 @@ get_value() {
 }
 
 check_dependencies() {
-    check_dependency jq "sudo yum install -y jq"    
+    check_dependency jq "sudo yum install -y jq"
     check_dependency aws
 
     if ! which yarn > /dev/null 2>&1; then
@@ -65,7 +65,7 @@ check_dependencies() {
         sudo yum install -y yarn
     fi
 
-    if [ ! -f ~/.nvm/versions/node/v8.12.0/bin/cdk ]; then
+    if [ ! -f ~/.nvm/versions/node/v10.30.0/bin/cdk ]; then
         install_cdk
     fi
 

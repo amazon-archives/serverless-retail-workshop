@@ -42,7 +42,7 @@ class Bastion extends Construct {
         bastionSecurityGroup.addIngressRule(new AnyIPv4(), new TcpPort(22));
 
         new Output(this, "AutoScalingGroupName", OutputProps.builder()
-                .withValue(bastionAsg.autoScalingGroupName())
+                .withValue(bastionAsg.getAutoScalingGroupName())
                 .build());
     }
 

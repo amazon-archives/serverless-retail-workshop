@@ -77,13 +77,13 @@ tools required for launching the new fishing shop website.
                 :linenos:
 
                 curl -O https://fishing.serverlessretail.com/files/student-files.zip
-                unzip student-files.zip
+                unzip -o student-files.zip
                 ./tools install
                 ./tools create_ssh_key
                 nvm install
 
             At this point you might see something like
-            `v8.12.0 is already installed.`, it is fine to ignore, it means
+            `v10.13.0 is already installed.`, it is fine to ignore, it means
             you're on the right track.
 
         .. group-tab:: Manual
@@ -92,11 +92,11 @@ tools required for launching the new fishing shop website.
                 :linenos:
 
                 curl -O https://fishing.serverlessretail.com/files/student-files.zip
-                unzip student-files.zip
+                unzip -o student-files.zip
                 sudo yum remove -y java-1.7.0-openjdk java-1.7.0-openjdk-devel
                 sudo yum install -y jq java-1.8.0-openjdk-devel
-                npm i -g aws-cdk@0.17.0
-                nvm install v8.12.0
+                nvm install
+                npm i -g aws-cdk@0.18.1
                 curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
                 sudo yum install -y yarn
 
