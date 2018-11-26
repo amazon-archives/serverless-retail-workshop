@@ -71,7 +71,7 @@ class ShopFrontend extends Construct {
         );
 
         EnvironmentResource shopEnvironment = new EnvironmentResource(this, "Environment", EnvironmentResourceProps.builder()
-                .withSolutionStackName("64bit Amazon Linux 2018.03 v2.7.5 running Python 3.6")
+                .withSolutionStackName("64bit Amazon Linux 2018.03 v2.7.6 running Python 3.6")
                 .withApplicationName(shopApplication.getApplicationName())
                 .withEnvironmentName(id)
                 .withOptionSettings(Arrays.asList(
