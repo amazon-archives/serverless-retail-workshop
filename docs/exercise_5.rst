@@ -1,8 +1,6 @@
 Exercise #5 (Optional)
 ======================
 
-.. warning:: Draft content
-
 We have a reasonable set up so far with our service being served by AWS Lambda.
 
 Now, although the service is running with full scaling capabilities on AWS
