@@ -134,7 +134,7 @@ function.
     };
 
 2. The output from the first step will be some JSON. Grab the string for
-    `FunctionArn` - it will look something like:
+   `FunctionArn` - it will look something like:
 
 .. code-block:: bash
     :linenos:
