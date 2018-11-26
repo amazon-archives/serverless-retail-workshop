@@ -65,7 +65,7 @@ check_dependencies() {
         sudo yum install -y yarn
     fi
 
-    if [ ! -f ~/.nvm/versions/node/v10.30.0/bin/cdk ]; then
+    if [ ! -f ~/.nvm/versions/node/v10.13.0/bin/cdk ]; then
         install_cdk
     fi
 
