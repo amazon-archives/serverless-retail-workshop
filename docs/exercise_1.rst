@@ -184,7 +184,7 @@ the ShopFrontend to AWS ElasticBeanstalk.
                 --version-label v1
 
         You now need to wait for the environment to become Ready again. You
-        can use the snippet above to do that. Keep repeating this command
+        can use the snippet below to do that. Keep repeating this command
         until you get `Ready` as a response.
 
         .. code-block:: bash
