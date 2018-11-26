@@ -44,7 +44,7 @@ scale. You can create APIs that access AWS or other web services, as well
 as data stored in the AWS Cloud.
 
 We are going to deploy the same code base we used in Exercise #1 with only a
-small change to the way we are building the code. Specifically,
+small change to the way we are building the code.
 
 **Let's see what we have right now**
 
