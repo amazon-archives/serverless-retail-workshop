@@ -21,4 +21,4 @@ coreapi==2.3.3  # https://github.com/core-api/python-client
 django-imagekit==4.0.2  # https://github.com/matthewwithanm/django-imagekit
 
 # Call outs
-requests==2.19.1
+requests==2.20.0
