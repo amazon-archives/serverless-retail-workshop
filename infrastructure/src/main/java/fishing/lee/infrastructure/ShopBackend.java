@@ -52,7 +52,7 @@ class ShopBackend extends Construct {
         }
 
         EnvironmentResource environmentResource = new EnvironmentResource(this, "Environment", EnvironmentResourceProps.builder()
-                .withSolutionStackName("64bit Amazon Linux 2018.03 v2.7.7 running Java 8")
+                .withSolutionStackName("64bit Amazon Linux 2018.03 v2.7.8 running Java 8")
                 .withApplicationName(applicationResource.getApplicationName())
                 .withEnvironmentName(id)
                 .withOptionSettings(Arrays.asList(
