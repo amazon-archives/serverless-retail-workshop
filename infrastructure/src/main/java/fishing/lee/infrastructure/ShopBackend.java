@@ -1,21 +1,17 @@
 package fishing.lee.infrastructure;
 
 import software.amazon.awscdk.*;
-import software.amazon.awscdk.services.apigateway.cloudformation.*;
-import software.amazon.awscdk.services.apigateway.cloudformation.Resource;
-import software.amazon.awscdk.services.apigateway.cloudformation.ResourceProps;
+import software.amazon.awscdk.services.apigateway.CfnRestApi;
+import software.amazon.awscdk.services.apigateway.CfnRestApiProps;
+import software.amazon.awscdk.services.apigateway.CfnStage;
 import software.amazon.awscdk.services.ec2.*;
-import software.amazon.awscdk.services.elasticbeanstalk.cloudformation.ApplicationResource;
-import software.amazon.awscdk.services.elasticbeanstalk.cloudformation.ApplicationResourceProps;
-import software.amazon.awscdk.services.elasticbeanstalk.cloudformation.EnvironmentResource;
-import software.amazon.awscdk.services.elasticbeanstalk.cloudformation.EnvironmentResourceProps;
+import software.amazon.awscdk.services.elasticbeanstalk.CfnApplication;
+import software.amazon.awscdk.services.elasticbeanstalk.CfnApplicationProps;
+import software.amazon.awscdk.services.elasticbeanstalk.CfnEnvironment;
+import software.amazon.awscdk.services.elasticbeanstalk.CfnEnvironmentProps;
 import software.amazon.awscdk.services.iam.*;
-import software.amazon.awscdk.services.iam.cloudformation.InstanceProfileResource;
-import software.amazon.awscdk.services.iam.cloudformation.InstanceProfileResourceProps;
 import software.amazon.awscdk.services.lambda.*;
 import software.amazon.awscdk.services.lambda.Runtime;
-import software.amazon.awscdk.services.lambda.cloudformation.PermissionResource;
-import software.amazon.awscdk.services.lambda.cloudformation.PermissionResourceProps;
 import software.amazon.awscdk.services.s3.Bucket;
 import software.amazon.awscdk.services.s3.BucketRef;
 import software.amazon.awscdk.services.s3.BucketRefProps;
@@ -34,7 +30,7 @@ class ShopBackend extends Construct {
     ShopBackend(Construct parent, String id, ShopBackendProps properties) {
         super(parent, id);
 
-        ApplicationResource applicationResource = new ApplicationResource(this, "Application", ApplicationResourceProps.builder()
+        CfnApplication applicationResource = new CfnApplication(this, "Application", CfnApplicationProps.builder()
                 .withApplicationName(id)
                 .withDescription("Keeping it Reel!")
                 .build());
@@ -51,7 +47,7 @@ class ShopBackend extends Construct {
             loadBalancerSecurityGroup.addIngressRule(properties.getBastionSecurityGroup(), new TcpAllPorts(), "Bastion");
         }
 
-        EnvironmentResource environmentResource = new EnvironmentResource(this, "Environment", EnvironmentResourceProps.builder()
+        CfnEnvironment environmentResource = new CfnEnvironment(this, "Environment", CfnEnvironmentProps.builder()
                 .withSolutionStackName("64bit Amazon Linux 2018.03 v2.7.8 running Java 8")
                 .withApplicationName(applicationResource.getApplicationName())
                 .withEnvironmentName(id)
@@ -59,12 +55,12 @@ class ShopBackend extends Construct {
                         /*
                             Networking
                          */
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:ec2:vpc")
                                 .withOptionName("VPCId")
                                 .withValue(properties.getShopVpc().getVpc().getVpcId())
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:ec2:vpc")
                                 .withOptionName("Subnets")
                                 .withValue(properties.getShopVpc().getVpc()
@@ -73,7 +69,7 @@ class ShopBackend extends Construct {
                                         .map(VpcSubnetRef::getSubnetId)
                                         .collect(Collectors.joining(",")))
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:ec2:vpc")
                                 .withOptionName("ELBSubnets")
                                 .withValue(properties.getShopVpc().getVpc()
@@ -82,7 +78,7 @@ class ShopBackend extends Construct {
                                         .map(VpcSubnetRef::getSubnetId)
                                         .collect(Collectors.joining(",")))
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:ec2:vpc")
                                 .withOptionName("ELBScheme")
                                 .withValue("internal")
@@ -91,11 +87,11 @@ class ShopBackend extends Construct {
                         /*
                           IAM things - instance profile and the EB Service Role
                          */
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:autoscaling:launchconfiguration")
                                 .withOptionName("IamInstanceProfile")
                                 .withValue(
-                                        new InstanceProfileResource(this, "InstanceProfile", InstanceProfileResourceProps.builder()
+                                        new CfnInstanceProfile(this, "InstanceProfile", CfnInstanceProfileProps.builder()
                                                 .withRoles(Collections.singletonList(
                                                         new Role(this, "ShopInstanceRole", RoleProps.builder()
                                                                 .withManagedPolicyArns(Arrays.asList(
@@ -112,7 +108,7 @@ class ShopBackend extends Construct {
                                                 .build()).getInstanceProfileName()
                                 )
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elasticbeanstalk:environment")
                                 .withOptionName("ServiceRole")
                                 .withValue(new Role(this, "ServiceRole", RoleProps.builder()
@@ -127,22 +123,22 @@ class ShopBackend extends Construct {
                         /*
                             Auto Scaling options (instance type etc.)
                          */
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:autoscaling:launchconfiguration")
                                 .withOptionName("InstanceType")
                                 .withValue(properties.getInstanceType())
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:autoscaling:launchconfiguration")
                                 .withOptionName("SecurityGroups")
                                 .withValue(instanceSecurityGroup.getGroupName())
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:autoscaling:asg")
                                 .withOptionName("MinSize")
                                 .withValue(String.valueOf(properties.getMinSize()))
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:autoscaling:asg")
                                 .withOptionName("MaxSize")
                                 .withValue(String.valueOf(properties.getMaxSize()))
@@ -151,12 +147,12 @@ class ShopBackend extends Construct {
                         /*
                             Monitoring
                          */
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elasticbeanstalk:xray")
                                 .withOptionName("XRayEnabled")
                                 .withValue("true")
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elasticbeanstalk:healthreporting:system")
                                 .withOptionName("SystemType")
                                 .withValue("enhanced")
@@ -167,17 +163,17 @@ class ShopBackend extends Construct {
                             care about encryption for this, plus you'd need a Certificate ARN and that's a bit
                             more complex in a demo.
                          */
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elasticbeanstalk:environment")
                                 .withOptionName("LoadBalancerType")
                                 .withValue("application")
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elbv2:loadbalancer")
                                 .withOptionName("SecurityGroups")
                                 .withValue(loadBalancerSecurityGroup.getGroupName())
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elbv2:loadbalancer")
                                 .withOptionName("ManagedSecurityGroup")
                                 .withValue(loadBalancerSecurityGroup.getGroupName())
@@ -186,7 +182,7 @@ class ShopBackend extends Construct {
                         /*
                             Settings
                          */
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elasticbeanstalk:application:environment")
                                 .withOptionName("SERVER_PORT")
                                 .withValue("5000")
@@ -229,25 +225,25 @@ class ShopBackend extends Construct {
                 .withDescription("Backend API Function")
                 .build());
 
-        RestApiResource restApiResource = new RestApiResource(this, "RestApi", RestApiResourceProps.builder()
+        CfnRestApi restApiResource = new CfnRestApi(this, "RestApi", CfnRestApiProps.builder()
                 .withName("TroutApi")
                 .withDescription("Artifishial Intelligence ordering API")
-                .withEndpointConfiguration(RestApiResource.EndpointConfigurationProperty.builder()
+                .withEndpointConfiguration(CfnRestApi.EndpointConfigurationProperty.builder()
                         .withTypes(Collections.singletonList("PRIVATE"))
                         .build())
                 .withPolicy(new CloudFormationToken(policyDocument))
                 .build());
 
-        RestApiResource edgeApiResource = new RestApiResource(this, "EdgeApi", RestApiResourceProps.builder()
+        CfnRestApi edgeApiResource = new CfnRestApi(this, "EdgeApi", CfnRestApiProps.builder()
                 .withName("TroutApiEdge")
                 .withDescription("Artifishial Intelligence ordering API @ Edge")
-                .withEndpointConfiguration(RestApiResource.EndpointConfigurationProperty.builder()
+                .withEndpointConfiguration(CfnRestApi.EndpointConfigurationProperty.builder()
                         .withTypes(Collections.singletonList("EDGE"))
                         .build())
                 .build());
 
-        StageResource stageResource = ApiGatewayStageGenerator.configureLambda(restApiResource, dummyLambda);
-        StageResource edgeStageResource = ApiGatewayStageGenerator.configureLambda(edgeApiResource, dummyLambda);
+        CfnStage stageResource = ApiGatewayStageGenerator.configureLambda(restApiResource, dummyLambda);
+        CfnStage edgeStageResource = ApiGatewayStageGenerator.configureLambda(edgeApiResource, dummyLambda);
 
         new Output(this, "LambdaFunctionArn", OutputProps.builder()
                 .withValue(dummyLambda.getFunctionArn())

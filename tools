@@ -7,7 +7,7 @@ program_name=$(basename $0)
 install_cdk() {
     . /home/ec2-user/.nvm/nvm.sh
     nvm install
-    npm i -g aws-cdk@0.18.1
+    npm i -g aws-cdk@0.21.0
 }
 
 check_region() {

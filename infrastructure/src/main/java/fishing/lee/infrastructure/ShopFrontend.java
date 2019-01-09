@@ -5,15 +5,11 @@ import software.amazon.awscdk.Construct;
 import software.amazon.awscdk.Output;
 import software.amazon.awscdk.OutputProps;
 import software.amazon.awscdk.services.ec2.*;
-import software.amazon.awscdk.services.elasticbeanstalk.cloudformation.ApplicationResource;
-import software.amazon.awscdk.services.elasticbeanstalk.cloudformation.ApplicationResourceProps;
-import software.amazon.awscdk.services.elasticbeanstalk.cloudformation.EnvironmentResource;
-import software.amazon.awscdk.services.elasticbeanstalk.cloudformation.EnvironmentResourceProps;
-import software.amazon.awscdk.services.iam.Role;
-import software.amazon.awscdk.services.iam.RoleProps;
-import software.amazon.awscdk.services.iam.ServicePrincipal;
-import software.amazon.awscdk.services.iam.cloudformation.InstanceProfileResource;
-import software.amazon.awscdk.services.iam.cloudformation.InstanceProfileResourceProps;
+import software.amazon.awscdk.services.elasticbeanstalk.CfnApplication;
+import software.amazon.awscdk.services.elasticbeanstalk.CfnApplicationProps;
+import software.amazon.awscdk.services.elasticbeanstalk.CfnEnvironment;
+import software.amazon.awscdk.services.elasticbeanstalk.CfnEnvironmentProps;
+import software.amazon.awscdk.services.iam.*;
 import software.amazon.awscdk.services.s3.Bucket;
 import software.amazon.awscdk.services.s3.BucketProps;
 
@@ -28,7 +24,7 @@ class ShopFrontend extends Construct {
     ShopFrontend(Construct parent, String id, ShopFrontendProps properties) {
         super(parent, id);
 
-        ApplicationResource shopApplication = new ApplicationResource(this, "Application", ApplicationResourceProps.builder()
+        CfnApplication shopApplication = new CfnApplication(this, "Application", CfnApplicationProps.builder()
                 .withApplicationName(id)
                 .withDescription("Keeping it Reel!")
                 .build());
@@ -70,7 +66,7 @@ class ShopFrontend extends Construct {
                 "postgres://${RDS_USERNAME}:${RDS_PASSWORD}@${RDS_HOSTNAME}:${RDS_PORT}/${RDS_DB_NAME}"
         );
 
-        EnvironmentResource shopEnvironment = new EnvironmentResource(this, "Environment", EnvironmentResourceProps.builder()
+        CfnEnvironment shopEnvironment = new CfnEnvironment(this, "Environment", CfnEnvironmentProps.builder()
                 .withSolutionStackName("64bit Amazon Linux 2018.03 v2.7.7 running Python 3.6")
                 .withApplicationName(shopApplication.getApplicationName())
                 .withEnvironmentName(id)
@@ -78,12 +74,12 @@ class ShopFrontend extends Construct {
                         /*
                             Networking
                          */
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:ec2:vpc")
                                 .withOptionName("VPCId")
                                 .withValue(properties.getShopVpc().getVpc().getVpcId())
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:ec2:vpc")
                                 .withOptionName("Subnets")
                                 .withValue(properties.getShopVpc().getVpc()
@@ -92,7 +88,7 @@ class ShopFrontend extends Construct {
                                         .map(VpcSubnetRef::getSubnetId)
                                         .collect(Collectors.joining(",")))
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:ec2:vpc")
                                 .withOptionName("ELBSubnets")
                                 .withValue(properties.getShopVpc().getVpc()
@@ -105,11 +101,11 @@ class ShopFrontend extends Construct {
                         /*
                           IAM things - instance profile and the EB Service Role
                          */
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:autoscaling:launchconfiguration")
                                 .withOptionName("IamInstanceProfile")
                                 .withValue(
-                                        new InstanceProfileResource(this, "InstanceProfile", InstanceProfileResourceProps.builder()
+                                        new CfnInstanceProfile(this, "InstanceProfile", CfnInstanceProfileProps.builder()
                                                 .withRoles(Collections.singletonList(
                                                         new Role(this, "InstanceRole", RoleProps.builder()
                                                                 .withManagedPolicyArns(Arrays.asList(
@@ -125,7 +121,7 @@ class ShopFrontend extends Construct {
                                                 .build()).getInstanceProfileName()
                                 )
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elasticbeanstalk:environment")
                                 .withOptionName("ServiceRole")
                                 .withValue(new Role(this, "ServiceRole", RoleProps.builder()
@@ -140,22 +136,22 @@ class ShopFrontend extends Construct {
                         /*
                             Auto Scaling options (instance type etc.)
                          */
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:autoscaling:launchconfiguration")
                                 .withOptionName("InstanceType")
                                 .withValue(properties.getInstanceType())
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:autoscaling:launchconfiguration")
                                 .withOptionName("SecurityGroups")
                                 .withValue(instanceSecurityGroup.getGroupName())
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:autoscaling:asg")
                                 .withOptionName("MinSize")
                                 .withValue(String.valueOf(properties.getMinSize()))
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:autoscaling:asg")
                                 .withOptionName("MaxSize")
                                 .withValue(String.valueOf(properties.getMaxSize()))
@@ -164,12 +160,12 @@ class ShopFrontend extends Construct {
                         /*
                             Monitoring
                          */
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elasticbeanstalk:xray")
                                 .withOptionName("XRayEnabled")
                                 .withValue("true")
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elasticbeanstalk:healthreporting:system")
                                 .withOptionName("SystemType")
                                 .withValue("enhanced")
@@ -180,17 +176,17 @@ class ShopFrontend extends Construct {
                             care about encryption for this, plus you'd need a Certificate ARN and that's a bit
                             more complex in a demo.
                          */
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elasticbeanstalk:environment")
                                 .withOptionName("LoadBalancerType")
                                 .withValue("application")
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elbv2:loadbalancer")
                                 .withOptionName("SecurityGroups")
                                 .withValue(loadBalancerSecurityGroup.getGroupName())
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elbv2:loadbalancer")
                                 .withOptionName("ManagedSecurityGroup")
                                 .withValue(loadBalancerSecurityGroup.getGroupName())
@@ -199,18 +195,18 @@ class ShopFrontend extends Construct {
                         /*
                             Settings
                          */
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elasticbeanstalk:application:environment")
                                 .withOptionName("BACKEND_DOMAIN")
                                 .withValue(properties.getShopBackend().getDomainName())
                                 .build(),
 
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elasticbeanstalk:application:environment")
                                 .withOptionName("DJANGO_AWS_STORAGE_BUCKET_NAME")
                                 .withValue(mediaBucket.getBucketName())
                                 .build(),
-                        EnvironmentResource.OptionSettingProperty.builder()
+                        CfnEnvironment.OptionSettingProperty.builder()
                                 .withNamespace("aws:elasticbeanstalk:application:environment")
                                 .withOptionName("DJANGO_SECURE_SSL_REDIRECT")
                                 .withValue("False")

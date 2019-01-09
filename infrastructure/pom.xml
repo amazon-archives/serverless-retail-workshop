@@ -6,7 +6,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <aws-cdk.version>0.18.1</aws-cdk.version>
+        <aws-cdk.version>0.21.0</aws-cdk.version>
     </properties>
 
     <groupId>fishing.lee</groupId>

@@ -4,17 +4,13 @@ import software.amazon.awscdk.CloudFormationToken;
 import software.amazon.awscdk.Construct;
 import software.amazon.awscdk.Output;
 import software.amazon.awscdk.OutputProps;
-import software.amazon.awscdk.services.apigateway.cloudformation.RestApiResource;
-import software.amazon.awscdk.services.apigateway.cloudformation.RestApiResourceProps;
-import software.amazon.awscdk.services.apigateway.cloudformation.StageResource;
+import software.amazon.awscdk.services.apigateway.CfnRestApi;
+import software.amazon.awscdk.services.apigateway.CfnRestApiProps;
+import software.amazon.awscdk.services.apigateway.CfnStage;
 import software.amazon.awscdk.services.ec2.*;
 import software.amazon.awscdk.services.iam.*;
 import software.amazon.awscdk.services.lambda.*;
 import software.amazon.awscdk.services.lambda.Runtime;
-import software.amazon.awscdk.services.lambda.cloudformation.EventSourceMappingResource;
-import software.amazon.awscdk.services.lambda.cloudformation.EventSourceMappingResourceProps;
-import software.amazon.awscdk.services.lambda.cloudformation.PermissionResource;
-import software.amazon.awscdk.services.lambda.cloudformation.PermissionResourceProps;
 import software.amazon.awscdk.services.s3.Bucket;
 import software.amazon.awscdk.services.s3.BucketRef;
 import software.amazon.awscdk.services.s3.BucketRefProps;
@@ -70,7 +66,7 @@ class QueueProxy extends Construct {
                 .withDescription("SQS to API")
                 .build());
 
-        new EventSourceMappingResource(this, "LambdaSQSMapping", EventSourceMappingResourceProps.builder()
+        new CfnEventSourceMapping(this, "LambdaSQSMapping", CfnEventSourceMappingProps.builder()
                 .withFunctionName(dummyQueueReceiverFunction.getFunctionName())
                 .withEventSourceArn(queue.getQueueArn())
                 .build());
@@ -100,32 +96,32 @@ class QueueProxy extends Construct {
                 .withDescription("API To SQS")
                 .build());
 
-        new PermissionResource(this, "OrderToSQSPermission", PermissionResourceProps.builder()
+        new CfnPermission(this, "OrderToSQSPermission", CfnPermissionProps.builder()
                 .withFunctionName(dummyApiReceiverToSqs.getFunctionName())
                 .withPrincipal("sqs.amazonaws.com")
                 .withSourceArn(queue.getQueueArn())
                 .withAction("lambda:invokeFunction")
                 .build());
 
-        RestApiResource restApiResource = new RestApiResource(this, "RestApi", RestApiResourceProps.builder()
+        CfnRestApi restApiResource = new CfnRestApi(this, "RestApi", CfnRestApiProps.builder()
                 .withName("SqsTroutApi")
                 .withDescription("Artifishial Intelligence ordering API (via SQS)")
-                .withEndpointConfiguration(RestApiResource.EndpointConfigurationProperty.builder()
+                .withEndpointConfiguration(CfnRestApi.EndpointConfigurationProperty.builder()
                         .withTypes(Collections.singletonList("PRIVATE"))
                         .build())
                 .withPolicy(new CloudFormationToken(new ApiGatewayVpcPolicyDocument(properties.getShopVpc().getApiEndpoint()).getPolicyDocument()))
                 .build());
 
-        RestApiResource edgeApiResource = new RestApiResource(this, "EdgeApi", RestApiResourceProps.builder()
+        CfnRestApi edgeApiResource = new CfnRestApi(this, "EdgeApi", CfnRestApiProps.builder()
                 .withName("SqsTroutApiEdge")
                 .withDescription("Artifishial Intelligence ordering API @ Edge (via SQS)")
-                .withEndpointConfiguration(RestApiResource.EndpointConfigurationProperty.builder()
+                .withEndpointConfiguration(CfnRestApi.EndpointConfigurationProperty.builder()
                         .withTypes(Collections.singletonList("EDGE"))
                         .build())
                 .build());
 
-        StageResource stageResource = ApiGatewayStageGenerator.configureLambda(restApiResource, dummyApiReceiverToSqs);
-        StageResource edgeStageResource = ApiGatewayStageGenerator.configureLambda(edgeApiResource, dummyApiReceiverToSqs);
+        CfnStage stageResource = ApiGatewayStageGenerator.configureLambda(restApiResource, dummyApiReceiverToSqs);
+        CfnStage edgeStageResource = ApiGatewayStageGenerator.configureLambda(edgeApiResource, dummyApiReceiverToSqs);
 
         new Output(this, "ToSQSFunctionArn", OutputProps.builder()
                 .withValue(dummyApiReceiverToSqs.getFunctionArn())

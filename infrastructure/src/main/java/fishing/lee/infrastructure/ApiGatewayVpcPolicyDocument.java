@@ -1,14 +1,14 @@
 package fishing.lee.infrastructure;
 
-import software.amazon.awscdk.services.ec2.cloudformation.VPCEndpointResource;
+import software.amazon.awscdk.services.ec2.CfnVPCEndpoint;
 import software.amazon.awscdk.services.iam.*;
 
 import java.util.HashMap;
 
 class ApiGatewayVpcPolicyDocument {
-    private VPCEndpointResource vpcEndpointResource;
+    private CfnVPCEndpoint vpcEndpointResource;
 
-    ApiGatewayVpcPolicyDocument(VPCEndpointResource vpcEndpointResource) {
+    ApiGatewayVpcPolicyDocument(CfnVPCEndpoint vpcEndpointResource) {
         this.vpcEndpointResource = vpcEndpointResource;
     }
 
@@ -17,14 +17,14 @@ class ApiGatewayVpcPolicyDocument {
         denyNotVpc.deny();
         denyNotVpc.addAction("execute-api:Invoke");
         denyNotVpc.addResource("execute-api:/*");
-        denyNotVpc.addPrincipal(new Anyone());
+        denyNotVpc.addPrincipal(new AnyPrincipal());
         denyNotVpc.addCondition("StringNotEquals", new HashMap<String, String>() {{
             put("aws:sourceVpce", vpcEndpointResource.getVpcEndpointId());
         }});
 
         PolicyStatement allow = new PolicyStatement();
         allow.allow();
-        allow.addPrincipal(new Anyone());
+        allow.addPrincipal(new AnyPrincipal());
         allow.addResource("execute-api:/*");
         allow.addAction("execute-api:Invoke");
 

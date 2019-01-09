@@ -4,10 +4,10 @@ import software.amazon.awscdk.Construct;
 import software.amazon.awscdk.Output;
 import software.amazon.awscdk.OutputProps;
 import software.amazon.awscdk.services.ec2.*;
-import software.amazon.awscdk.services.rds.cloudformation.DBInstanceResource;
-import software.amazon.awscdk.services.rds.cloudformation.DBInstanceResourceProps;
-import software.amazon.awscdk.services.rds.cloudformation.DBSubnetGroupResource;
-import software.amazon.awscdk.services.rds.cloudformation.DBSubnetGroupResourceProps;
+import software.amazon.awscdk.services.rds.CfnDBInstance;
+import software.amazon.awscdk.services.rds.CfnDBInstanceProps;
+import software.amazon.awscdk.services.rds.CfnDBSubnetGroup;
+import software.amazon.awscdk.services.rds.CfnDBSubnetGroupProps;
 
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -23,7 +23,7 @@ class Postgres extends Construct {
     Postgres(Construct parent, String id, PostgresProps properties) {
         super(parent, id);
 
-        DBSubnetGroupResource dbSubnetGroupResource = new DBSubnetGroupResource(this, "PrivateSubnets", DBSubnetGroupResourceProps.builder()
+        CfnDBSubnetGroup dbSubnetGroupResource = new CfnDBSubnetGroup(this, "PrivateSubnets", CfnDBSubnetGroupProps.builder()
                 .withDbSubnetGroupDescription(id + "PrivateSubnets")
                 .withDbSubnetGroupName(id + "PrivateSubnets")
                 .withSubnetIds(properties.getShopVpc().getVpc()
@@ -41,7 +41,7 @@ class Postgres extends Construct {
         password = id.toLowerCase() + "p4ssw0rd";
         dbName = id.toLowerCase();
 
-        DBInstanceResource dbInstanceResource = new DBInstanceResource(this, "Database", DBInstanceResourceProps.builder()
+        CfnDBInstance dbInstanceResource = new CfnDBInstance(this, "Database", CfnDBInstanceProps.builder()
                 .withDbInstanceIdentifier(id)
                 .withEngine("postgres")
                 .withEngineVersion("10.4")

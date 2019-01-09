@@ -3,8 +3,6 @@ package fishing.lee.infrastructure;
 import software.amazon.awscdk.AwsRegion;
 import software.amazon.awscdk.Construct;
 import software.amazon.awscdk.services.ec2.*;
-import software.amazon.awscdk.services.ec2.cloudformation.VPCEndpointResource;
-import software.amazon.awscdk.services.ec2.cloudformation.VPCEndpointResourceProps;
 
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -12,7 +10,7 @@ import java.util.stream.Collectors;
 class ShopVpc extends Construct {
     private final VpcNetwork vpc;
     private final SecurityGroup apiEndpointSecurityGroup;
-    private final VPCEndpointResource apiEndpoint;
+    private final CfnVPCEndpoint apiEndpoint;
 
     ShopVpc(Construct parent, String id) {
         super(parent, id);
@@ -29,7 +27,7 @@ class ShopVpc extends Construct {
                 .withVpc(vpc)
                 .build());
 
-        apiEndpoint = new VPCEndpointResource(this, "APIEndpoint", VPCEndpointResourceProps.builder()
+        apiEndpoint = new CfnVPCEndpoint(this, "APIEndpoint", CfnVPCEndpointProps.builder()
                 .withVpcId(vpc.getVpcId())
                 .withServiceName("com.amazonaws." + new AwsRegion() + ".execute-api")
                 .withPrivateDnsEnabled(true)
@@ -50,7 +48,7 @@ class ShopVpc extends Construct {
         apiEndpointSecurityGroup.addIngressRule(securityGroup, new TcpPort(443));
     }
 
-    VPCEndpointResource getApiEndpoint() {
+    CfnVPCEndpoint getApiEndpoint() {
         return apiEndpoint;
     }
 }

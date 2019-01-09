@@ -6,16 +6,13 @@ import software.amazon.awscdk.Construct;
 import software.amazon.awscdk.Output;
 import software.amazon.awscdk.OutputProps;
 import software.amazon.awscdk.services.cloudfront.*;
-import software.amazon.awscdk.services.cloudfront.cloudformation.CloudFrontOriginAccessIdentityResource;
-import software.amazon.awscdk.services.cloudfront.cloudformation.CloudFrontOriginAccessIdentityResourceProps;
-import software.amazon.awscdk.services.cloudfront.cloudformation.DistributionResource;
 import software.amazon.awscdk.services.iam.*;
 import software.amazon.awscdk.services.lambda.*;
 import software.amazon.awscdk.services.lambda.Runtime;
 import software.amazon.awscdk.services.s3.Bucket;
 import software.amazon.awscdk.services.s3.BucketProps;
-import software.amazon.awscdk.services.s3.cloudformation.BucketPolicyResource;
-import software.amazon.awscdk.services.s3.cloudformation.BucketPolicyResourceProps;
+import software.amazon.awscdk.services.s3.CfnBucketPolicy;
+import software.amazon.awscdk.services.s3.CfnBucketPolicyProps;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,11 +28,10 @@ class ContentDistribution extends Construct {
         Bucket bucket = new Bucket(this, "Bucket", BucketProps.builder()
                 .build());
 
-        CloudFrontOriginAccessIdentityResource identityResource = new CloudFrontOriginAccessIdentityResource(this, "OAI", CloudFrontOriginAccessIdentityResourceProps.builder()
-                .withCloudFrontOriginAccessIdentityConfig(new CloudFrontOriginAccessIdentityResource.CloudFrontOriginAccessIdentityConfigProperty.Builder()
+        CfnCloudFrontOriginAccessIdentity identityResource = new CfnCloudFrontOriginAccessIdentity(this, "OAI", CfnCloudFrontOriginAccessIdentityProps.builder()
+                .withCloudFrontOriginAccessIdentityConfig(new CfnCloudFrontOriginAccessIdentity.CloudFrontOriginAccessIdentityConfigProperty.Builder()
                         .withComment("Static Content Distribution")
-                        .build()
-                )
+                        .build())
                 .build());
 
         CloudFrontWebDistribution webDistribution = new CloudFrontWebDistribution(this, "CloudFront", CloudFrontWebDistributionProps.builder()
@@ -50,8 +46,8 @@ class ContentDistribution extends Construct {
                                                 .withAllowedMethods(CloudFrontAllowedMethods.ALL)
                                                 .withDefaultTtlSeconds(60)
                                                 .withIsDefaultBehavior(true)
-                                                .withForwardedValues(DistributionResource.ForwardedValuesProperty.builder()
-                                                        .withCookies(DistributionResource.CookiesProperty.builder()
+                                                .withForwardedValues(CfnDistribution.ForwardedValuesProperty.builder()
+                                                        .withCookies(CfnDistribution.CookiesProperty.builder()
                                                                 .withWhitelistedNames(Arrays.asList(
                                                                         "csrftoken",
                                                                         "sessionid",
@@ -106,7 +102,7 @@ class ContentDistribution extends Construct {
 
         edgeLambda.addVersion("1");
 
-        new BucketPolicyResource(this, "BucketPolicy", BucketPolicyResourceProps.builder()
+        new CfnBucketPolicy(this, "BucketPolicy", CfnBucketPolicyProps.builder()
                 .withBucket(bucket.getBucketName())
                 .withPolicyDocument(document)
                 .build());

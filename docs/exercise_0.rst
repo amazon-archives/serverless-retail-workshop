@@ -96,7 +96,7 @@ tools required for launching the new fishing shop website.
                 sudo yum remove -y java-1.7.0-openjdk java-1.7.0-openjdk-devel
                 sudo yum install -y jq java-1.8.0-openjdk-devel
                 nvm install
-                npm i -g aws-cdk@0.18.1
+                npm i -g aws-cdk@0.21.0
                 curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
                 sudo yum install -y yarn
 
