@@ -6,7 +6,7 @@ doc8==0.8.0
 docutils==0.14
 idna==2.7
 imagesize==1.1.0
-Jinja2==2.10
+Jinja2==2.10.1
 MarkupSafe==1.0
 packaging==18.0
 pbr==5.1.0
